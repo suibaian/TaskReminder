@@ -44,5 +44,6 @@ private:
     Ui::MainWidget *ui;
     AddDialog *addDialog;  // 添加任务的对话框
     QList<Task> tasks;  // 存储任务的容器
+    const QString& filePath = "tasks.txt";
 };
 #endif // MAINWIDGET_H

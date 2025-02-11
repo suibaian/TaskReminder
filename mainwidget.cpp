@@ -13,6 +13,7 @@ MainWidget::MainWidget(QWidget *parent)
     , ui(new Ui::MainWidget)
 {
     ui->setupUi(this);
+    this->loadTasksFromFile(filePath);
 
     // 连接信号和槽
 
@@ -26,7 +27,7 @@ MainWidget::~MainWidget()
 
 }
 
-// 排序任务
+// 排序任务--ai
 void MainWidget::sortTasks(QList<Task>& tasks, const QString& sortBy) {
     if (sortBy == "Date") {
         std::sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b) {
@@ -39,7 +40,7 @@ void MainWidget::sortTasks(QList<Task>& tasks, const QString& sortBy) {
     }
 }
 
-// 筛选任务
+// 筛选任务--ai
 QList<Task> MainWidget::filterTasks(const QList<Task>& tasks, const QString& category) {
     QList<Task> filteredTasks;
     for (const Task& task : tasks) {
@@ -51,9 +52,12 @@ QList<Task> MainWidget::filterTasks(const QList<Task>& tasks, const QString& cat
 }
 
 
-
+//ai
 void MainWidget::saveTasksToFile(const QList<Task>& tasks, const QString& filePath) {
+    qDebug() << "Saving tasks to file: " << filePath;
+    
     QFile file(filePath);
+    
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream out(&file);
         for (const Task& task : tasks) {
@@ -107,16 +111,17 @@ void MainWidget::addTask(const Task &task)
     // qDebug() << "Task added";
     std::cout << "Task added" << std::endl;
 
+    tasks.append(task);
+
     // 将任务添加到任务列表
     // 任务列表是一个 QJsonArray
-    QJsonObject taskObject;
-    taskObject["content"] = task.content;
-    taskObject["priority"] = task.priority;
-    taskObject["category"] = task.category;
-    taskObject["isCompleted"] = task.isCompleted;
-    taskObject["date"] = task.date.toString("yyyy-MM-dd");
-
-    qDebug() << "Task added: " << taskObject;
+    // QJsonObject taskObject;
+    // taskObject["content"] = task.content;
+    // taskObject["priority"] = task.priority;
+    // taskObject["category"] = task.category;
+    // taskObject["isCompleted"] = task.isCompleted;
+    // taskObject["date"] = task.date.toString("yyyy-MM-dd");
+    // qDebug() << "Task added: " << taskObject;
 
     // 创建自定义控件 TaskWidget
     TaskWidget *taskWidget = new TaskWidget(task);
@@ -126,5 +131,6 @@ void MainWidget::addTask(const Task &task)
     ui->task_listWidget->addItem(item);
     ui->task_listWidget->setItemWidget(item, taskWidget);  // 将控件放入 item 中
 
-
+    // 保存任务到文件
+    this->saveTasksToFile(tasks, filePath);
 }

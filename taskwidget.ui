@@ -36,7 +36,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="comboBox_2"/>
+        <widget class="QComboBox" name="priorityCombo"/>
        </item>
       </layout>
      </item>
@@ -50,7 +50,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="comboBox"/>
+        <widget class="QComboBox" name="categoryCombo"/>
        </item>
       </layout>
      </item>
