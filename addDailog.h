@@ -10,12 +10,20 @@ class AddDialog;
 }
 
 class Task {
+public:
+    QString content;  // 任务内容
+    int priority;  // 任务优先级
+    QString category;  // 任务类别
+    bool isCompleted;  // 是否完成
+    QDate date;  // 创建日期
+
+
     public:
-        QString content;  // 任务内容
-        QString priority;  // 任务优先级
-        QString category;  // 任务类别
-        bool isCompleted;  // 是否完成
-        QDate date;  // 创建日期
+    Task() : isCompleted(false), priority(0) {}
+
+    // 构造函数，用于初始化Task对象
+    Task(const QString& cat, const QString& cont, const QDate& d, bool completed, int prio)
+        : category(cat), content(cont), date(d), isCompleted(completed), priority(prio) {}
 };
 
 

@@ -2,8 +2,7 @@
 #define MAINWIDGET_H
 
 #include <QWidget>
-#include <QJsonArray>
-#include <QJsonObject>
+
 
 #include "addDailog.h"
 
@@ -28,15 +27,14 @@ public:
 
     QList<Task> filterTasks(const QList<Task> &tasks, const QString &category);
 
-    void saveTasksToFile(const QList<Task> &tasks, const QString &filePath);
+    void saveTasksToFile(const QList<Task> &tasks);
 
-    QList<Task> loadTasksFromFile(const QString &filePath);
+    bool loadTasksFromFile();
 
 private slots:
     void createNewTask();
 
     void addTask(const Task &task);
-
 
     // void on_addTask_pushButton_clicked();
 
@@ -44,6 +42,6 @@ private:
     Ui::MainWidget *ui;
     AddDialog *addDialog;  // 添加任务的对话框
     QList<Task> tasks;  // 存储任务的容器
-    const QString& filePath = "tasks.txt";
+    QString filePath = "tasks.txt";
 };
 #endif // MAINWIDGET_H

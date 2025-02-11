@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>tasks.txt</file>
+    </qresource>
+</RCC>

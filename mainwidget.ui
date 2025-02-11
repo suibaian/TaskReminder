@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>486</width>
+    <width>1005</width>
     <height>595</height>
    </rect>
   </property>
@@ -17,6 +17,19 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <widget class="QLabel" name="label">
        <property name="text">
         <string>类别</string>
@@ -24,28 +37,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="class_comboBox">
-       <item>
-        <property name="text">
-         <string>全部</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>IT项目</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>对话</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>娱乐</string>
-        </property>
-       </item>
-      </widget>
+      <widget class="QComboBox" name="class_comboBox"/>
      </item>
      <item>
       <widget class="QLabel" name="label_2">
@@ -55,18 +47,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="sort_comboBox">
-       <item>
-        <property name="text">
-         <string>时间</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>优先级</string>
-        </property>
-       </item>
-      </widget>
+      <widget class="QComboBox" name="sort_comboBox"/>
      </item>
      <item>
       <widget class="QPushButton" name="addTask_pushButton">

@@ -3,9 +3,14 @@
 #include <iostream>
 
 #include "addDailog.h"
+#include "common.h"
 
 #include <QDebug>
 #include <qfile.h>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonDocument>
+
 #include "taskwidget.h"
 
 MainWidget::MainWidget(QWidget *parent)
@@ -13,7 +18,22 @@ MainWidget::MainWidget(QWidget *parent)
     , ui(new Ui::MainWidget)
 {
     ui->setupUi(this);
-    this->loadTasksFromFile(filePath);
+    if( this->loadTasksFromFile())
+    {
+        qDebug() << "Tasks loaded from file!";
+    }
+    else
+    {
+        qDebug() << "Failed to load tasks from file!";
+    }
+
+    QStringList mainPriorityList = priorityList;
+    mainPriorityList.prepend("All");
+    ui->class_comboBox->addItems(categoryList);
+    ui->sort_comboBox->addItems(mainPriorityList);
+
+    ui->class_comboBox->setCurrentIndex(0);
+    ui->sort_comboBox->setCurrentIndex(1);
 
     // 连接信号和槽
 
@@ -52,40 +72,101 @@ QList<Task> MainWidget::filterTasks(const QList<Task>& tasks, const QString& cat
 }
 
 
-//ai
-void MainWidget::saveTasksToFile(const QList<Task>& tasks, const QString& filePath) {
-    qDebug() << "Saving tasks to file: " << filePath;
+void MainWidget::saveTasksToFile(const QList<Task>& tasks) {
+
+    foreach (const Task &task, tasks) {
+        QJsonObject taskObject;
+        taskObject["content"] = task.content;
+        taskObject["priority"] = task.priority;
+        taskObject["category"] = task.category;
+        taskObject["isCompleted"] = task.isCompleted;
+        taskObject["date"] = task.date.toString("yyyy-MM-dd");
     
-    QFile file(filePath);
+        QJsonDocument doc(taskObject);
+        QFile file("task.json");
     
-    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QTextStream out(&file);
-        for (const Task& task : tasks) {
-            out << task.content << "," << task.priority << "," << task.category << "," << task.isCompleted << "," << task.date.toString() << "\n";
+        if (file.open(QIODevice::Append)) {
+            file.write(doc.toJson());
+            file.close();
+            qDebug() << "Task saved to file!";
+        } else {
+            qDebug() << "Failed to open file for writing!";
         }
     }
 }
 
-QList<Task> MainWidget::loadTasksFromFile(const QString& filePath) {
-    QList<Task> tasks;
-    QFile file(filePath);
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream in(&file);
-        while (!in.atEnd()) {
-            QString line = in.readLine();
-            QStringList fields = line.split(",");
-            if (fields.size() == 5) {
-                Task task;
-                task.content = fields[0];
-                task.priority = fields[1];
-                task.category = fields[2];
-                task.isCompleted = fields[3] == "1";  // assuming 1 is true for completed
-                task.date = QDate::fromString(fields[4]);
-                tasks.append(task);
-            }
-        }
+
+bool MainWidget::loadTasksFromFile() {
+    /*
+    QFile file("task.json");
+
+    if (!file.open(QIODevice::ReadOnly)) {
+        qDebug() << "Failed to open file for reading!";
+        return false;  // Return an empty task or handle it as needed
     }
-    return tasks;
+
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        QJsonDocument doc = QJsonDocument::fromJson(line.toUtf8());
+    
+        if (!doc.isObject()) {
+            qDebug() << "Invalid JSON format!";
+            return false;  // Return an empty task or handle it as needed
+        }
+    
+        QJsonObject taskObject = doc.object();
+    
+        Task task;
+        task.content = taskObject["content"].toString();
+        task.priority = taskObject["priority"].toInt();
+        task.category = taskObject["category"].toString();
+        task.isCompleted = taskObject["isCompleted"].toBool();
+        task.date = QDate::fromString(taskObject["date"].toString(), "yyyy-MM-dd");
+    
+        qDebug() << "Task loaded from file!";
+        this->tasks.append(task);
+    }
+    file.close();
+    return true;
+    */
+
+    QFile file("tasks.json");
+    
+    if (!file.open(QIODevice::ReadOnly)) {
+        qDebug() << "Failed to open file!";
+        return false;
+    }
+    
+    QByteArray data = file.readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    
+    if (!doc.isArray()) {
+        qDebug() << "Invalid JSON format!";
+        return false;
+    }
+    
+    QJsonArray taskArray = doc.array();
+    
+    for (const QJsonValue& value : taskArray) {
+        if (!value.isObject()) {
+            continue;
+        }
+        
+        QJsonObject taskObject = value.toObject();
+        
+        QString category = taskObject["category"].toString();
+        QString content = taskObject["content"].toString();
+        QDate date = QDate::fromString(taskObject["date"].toString(), "yyyy-MM-dd");
+        bool isCompleted = taskObject["isCompleted"].toBool();
+        int priority = taskObject["priority"].toInt();
+        
+        Task task(category, content, date, isCompleted, priority);
+        tasks.append(task);  // 将Task对象添加到列表中
+    }
+
+    qDebug() << "Tasks loaded: " << tasks.size();
+    return true;
 }
 
 
@@ -123,14 +204,17 @@ void MainWidget::addTask(const Task &task)
     // taskObject["date"] = task.date.toString("yyyy-MM-dd");
     // qDebug() << "Task added: " << taskObject;
 
-    // 创建自定义控件 TaskWidget
-    TaskWidget *taskWidget = new TaskWidget(task);
-
     // 将 QWidget 添加到 QListWidget
     QListWidgetItem *item = new QListWidgetItem();
     ui->task_listWidget->addItem(item);
+
+
+    // 创建自定义控件 TaskWidget
+    TaskWidget *taskWidget = new TaskWidget(task);
     ui->task_listWidget->setItemWidget(item, taskWidget);  // 将控件放入 item 中
+    item->setSizeHint(QSize(400, 80));
+    ui->task_listWidget->setCurrentItem(item);
 
     // 保存任务到文件
-    this->saveTasksToFile(tasks, filePath);
+    this->saveTasksToFile(tasks);
 }

@@ -20,6 +20,7 @@ set(PROJECT_SOURCES
         addDailog.h
         tasklistitem.cpp
         tasklistitem.h
+        common.h
         mainwidget.ui
 )
 
@@ -44,6 +45,7 @@ else()
             ${PROJECT_SOURCES}
             tasklistitem.h tasklistitem.cpp
             taskwidget.h taskwidget.cpp taskwidget.ui
+
         )
     endif()
 endif()

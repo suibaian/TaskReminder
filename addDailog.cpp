@@ -19,7 +19,7 @@ AddDialog::AddDialog(QWidget *parent)
     QComboBox *categoryCombo = new QComboBox(this);
     QCheckBox *completedCheck = new QCheckBox("Completed", this);
 
-    priorityCombo->addItems({"High", "Medium", "Low"});
+    priorityCombo->addItems({"1", "2", "3"});
     categoryCombo->addItems({"Dialogue", "Project", "Small task", "Video", "None"});
 
     QPushButton *okButton = new QPushButton("OK", this);
@@ -41,8 +41,7 @@ AddDialog::AddDialog(QWidget *parent)
                      {
         Task newTask;
         newTask.content = taskContentEdit->toPlainText();
-        newTask.priority = priorityCombo->currentText();
-        newTask.category = categoryCombo->currentText();
+        newTask.category = categoryCombo->currentText().toInt();
         newTask.isCompleted = completedCheck->isChecked();
         newTask.date = QDate::currentDate();
         emit taskAdded(newTask);
