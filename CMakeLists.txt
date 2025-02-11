@@ -9,13 +9,17 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Core Gui )
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Core Gui)
 
 set(PROJECT_SOURCES
         main.cpp
         mainwidget.cpp
         mainwidget.h
+        addDailog.cpp
+        addDailog.h
+        tasklistitem.cpp
+        tasklistitem.h
         mainwidget.ui
 )
 
@@ -38,6 +42,8 @@ else()
     else()
         add_executable(TaskReminder
             ${PROJECT_SOURCES}
+            tasklistitem.h tasklistitem.cpp
+            taskwidget.h taskwidget.cpp taskwidget.ui
         )
     endif()
 endif()
