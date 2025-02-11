@@ -2,7 +2,7 @@
 #include "./ui_mainwidget.h"
 #include <iostream>
 
-#include "addDailog.h"
+#include "adddialog.h"
 #include "common.h"
 
 #include <QDebug>
@@ -27,10 +27,10 @@ MainWidget::MainWidget(QWidget *parent)
         qDebug() << "Failed to load tasks from file!";
     }
 
-    QStringList mainPriorityList = priorityList;
-    mainPriorityList.prepend("All");
-    ui->class_comboBox->addItems(categoryList);
-    ui->sort_comboBox->addItems(mainPriorityList);
+    QStringList mainCategoryList = categoryList;
+    mainCategoryList.prepend("All");
+    ui->class_comboBox->addItems(priorityList);
+    ui->sort_comboBox->addItems(mainCategoryList);
 
     ui->class_comboBox->setCurrentIndex(0);
     ui->sort_comboBox->setCurrentIndex(1);
@@ -212,7 +212,7 @@ void MainWidget::addTask(const Task &task)
     // 创建自定义控件 TaskWidget
     TaskWidget *taskWidget = new TaskWidget(task);
     ui->task_listWidget->setItemWidget(item, taskWidget);  // 将控件放入 item 中
-    item->setSizeHint(QSize(400, 80));
+    item->setSizeHint(QSize(1000, 200));
     ui->task_listWidget->setCurrentItem(item);
 
     // 保存任务到文件

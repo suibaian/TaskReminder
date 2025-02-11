@@ -2,7 +2,7 @@
 #define TASKWIDGET_H
 
 #include <QWidget>
-#include "addDailog.h"
+#include "adddialog.h"
 
 namespace Ui {
 class TaskWidget;

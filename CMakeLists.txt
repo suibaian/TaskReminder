@@ -16,8 +16,6 @@ set(PROJECT_SOURCES
         main.cpp
         mainwidget.cpp
         mainwidget.h
-        addDailog.cpp
-        addDailog.h
         tasklistitem.cpp
         tasklistitem.h
         common.h
@@ -45,7 +43,7 @@ else()
             ${PROJECT_SOURCES}
             tasklistitem.h tasklistitem.cpp
             taskwidget.h taskwidget.cpp taskwidget.ui
-
+            adddialog.h adddialog.cpp adddialog.ui
         )
     endif()
 endif()

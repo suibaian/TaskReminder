@@ -4,7 +4,7 @@
 #include <QWidget>
 
 
-#include "addDailog.h"
+#include "adddialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
