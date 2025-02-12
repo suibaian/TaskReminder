@@ -18,13 +18,15 @@ public:
 
 signals:
     void deleteTask(int taskId);
+    void taskChanged(const Task& task);
 
 private slots:
     void on_delete_btn_clicked();
 
 private:
     Ui::TaskWidget *ui;
-    int taskId;  // add task id to widget for find to delete
+    Task* _task;  // add task id to widget for find to delete
+    // int taskId;  
 };
 
 #endif // TASKWIDGET_H

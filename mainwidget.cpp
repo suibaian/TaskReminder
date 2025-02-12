@@ -13,6 +13,7 @@
 // #include <QScroller>
 #include <QScrollBar>
 // #include <QVScroller>
+#include <QKeyEvent>
 
 #include "taskwidget.h"
 
@@ -21,6 +22,13 @@ MainWidget::MainWidget(QWidget *parent)
     , ui(new Ui::MainWidget)
 {
     ui->setupUi(this);
+
+
+        // set app icon and title 
+        this->setWindowIcon(QIcon("://res/TaskReminder.ico"));
+        this->setWindowTitle("Task Manager");
+
+
     if( this->loadTasksFromFile())
     {
         qDebug() << "Tasks loaded from file!";
@@ -39,34 +47,37 @@ MainWidget::MainWidget(QWidget *parent)
     // ui->class_comboBox->setCurrentIndex(0);
     // ui->sort_comboBox->setCurrentIndex(1);
 
+    // 启用平滑滚动
+    ui->task_listWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    // 调整滚动参数
+    ui->task_listWidget->verticalScrollBar()->setSingleStep(20); //20一次滚动的距离，自行调整
+
+
+
+
     // 连接信号和槽
 
     // 连接 addTask_pushButton 的 clicked 信号和 on_addTask_pushButton_clicked 槽函数
     connect(ui->addTask_pushButton, &QPushButton::clicked, this, &MainWidget::on_createNewTask_Dialog);
+    // connect filter_comboBox for filter
+    connect(ui->class_comboBox, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), [=](const QString &text) {
+        // qDebug() << "Filter by category: " << text;
+        QList<Task> filteredTasks = filterTasks(tasks, text);
+        updateTaskListWidget(filteredTasks);
+    });
 
-    // 启用平滑滚动
-    // QScroller *scroller = QScroller::scroller(ui->task_listWidget);
-    // scroller->grabGesture(ui->task_listWidget, QScroller::TouchGesture);
-
-    // // 调整滚动参数
-    // QScrollerProperties properties = scroller->scrollerProperties();
-    // properties.setScrollMetric(QScrollerProperties::DecelerationFactor, 0.1);
-    // properties.setScrollMetric(QScrollerProperties::MaximumVelocity, 0.5);
-    // properties.setScrollMetric(QScrollerProperties::OvershootDragResistanceFactor, 0.2);
-    // properties.setScrollMetric(QScrollerProperties::OvershootScrollDistanceFactor, 0.2);
-    // properties.setScrollMetric(QScrollerProperties::OvershootScrollTime, 0.2);
-    // scroller->setScrollerProperties(properties);
-
-
-    ui->task_listWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-    ui->task_listWidget->verticalScrollBar()->setSingleStep(20); //20一次滚动的距离，自行调整
+    // connect sort_comboBox for sort
+    connect(ui->sort_comboBox, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), [=](const QString &text) {
+        // qDebug() << "Sort by: " << text;
+        sortTasks(tasks, text);
+        updateTaskListWidget(tasks);
+    });
 
 }
 
 MainWidget::~MainWidget()
 {
     delete ui;
-
 }
 
 // 排序任务--ai
@@ -102,12 +113,26 @@ void MainWidget::saveTasksToFile(const QList<Task>& tasks) {
         taskObject["priority"] = task.priority;
         taskObject["category"] = task.category;
         taskObject["isCompleted"] = task.isCompleted;
-        taskObject["date"] = task.date.toString("yyyy-MM-dd");
+        taskObject["date"] = task.date.toString(TASK_DATE_FORMAT);
         taskArray.append(taskObject);
     }
 
     QJsonDocument doc(taskArray);
-    QFile file("tasks.json");
+    // to backup one file about previous tasks
+
+    QFile backupfile(TASK_BACKUP_FILE_NAME);
+    if (backupfile.open(QIODevice::WriteOnly)) {  // 使用 WriteOnly 模式覆盖文件内容
+        backupfile.write(doc.toJson());
+        backupfile.close();
+        qDebug() << "Tasks saved to file!";
+    } else {
+        qDebug() << "Failed to open file for writing!";
+    }
+
+    backupfile.close();
+
+    // to save tasks to file
+    QFile file(TASK_FILE_NAME);
 
     if (file.open(QIODevice::WriteOnly)) {  // 使用 WriteOnly 模式覆盖文件内容
         file.write(doc.toJson());
@@ -118,9 +143,8 @@ void MainWidget::saveTasksToFile(const QList<Task>& tasks) {
     }
 }
 
-
 bool MainWidget::loadTasksFromFile() {
-    QFile file("tasks.json");
+    QFile file(TASK_FILE_NAME);
     
     if (!file.exists()) {
         qDebug() << "File does not exist!";
@@ -164,6 +188,21 @@ bool MainWidget::loadTasksFromFile() {
 }
 
 
+// only update task data not update task list widget
+void MainWidget::updateTaskItem(const Task &task)
+{
+    for (int i = 0; i < tasks.size(); ++i) {
+        if (tasks[i].id == task.id) {
+            tasks[i] = task;
+            break;
+        }
+    }
+
+    // 保存任务到文件
+    saveTasksToFile(tasks);
+}
+
+// only update task list widget not save to file
 void MainWidget::updateTaskListWidget(const QList<Task>& tasks)
 {
     // 清空任务列表
@@ -179,27 +218,27 @@ void MainWidget::updateTaskListWidget(const QList<Task>& tasks)
 
 void MainWidget::addTask(const Task &task)
 {
-    // 将 QWidget 添加到 QListWidget
+    // create a new item
     QListWidgetItem *item = new QListWidgetItem();
     ui->task_listWidget->addItem(item);
 
-
-    // 创建自定义控件 TaskWidget
+    // create a new myself want TaskWidget
     TaskWidget *taskWidget = new TaskWidget(task);
-    ui->task_listWidget->setItemWidget(item, taskWidget);  // 将控件放入 item 中
+    ui->task_listWidget->setItemWidget(item, taskWidget);  // set item widget
     item->setSizeHint(QSize(800, 150));
     ui->task_listWidget->setCurrentItem(item);
 
-    // 设置项的背景颜色
+    // set background color
     if (ui->task_listWidget->count() % 2 == 0) {
-        item->setBackgroundColor(QColor(255, 255, 255));  // 白色
+        item->setBackground(QColor(255, 255, 255));  // 白色
     } else {
-        item->setBackgroundColor(QColor(240, 240, 240));  // 浅灰色
+        item->setBackground(QColor(240, 240, 240));  // 浅灰色
     }
 
     // 连接 TaskWidget 的 deleteTask 信号 到 MainWidget 的 deleteTask 槽函数
     connect(taskWidget, &TaskWidget::deleteTask, this, &MainWidget::on_deleteTask_handled);
-
+    // 连接 TaskWidget 的 taskChanged 信号 到 MainWidget 的 updateTaskItem 槽函数
+    connect(taskWidget, &TaskWidget::taskChanged, this, &MainWidget::updateTaskItem);
 }
 
 //******************************************* *槽函数***************************************************
@@ -219,10 +258,14 @@ void MainWidget::on_createNewTask_Dialog()
 
 void MainWidget::on_addTask_handled(const Task &task)
 {
-    // ToDo: 添加任务到任务列表
+    // TODO:add task to tasks list but add first task to the top of the list
+    // tasks.prepend(task);
     tasks.append(task);
-    // 更新任务列表
-    updateTaskListWidget(tasks);
+
+    // // 更新任务列表
+    // updateTaskListWidget(tasks);
+    addTask(task);
+
     // 保存任务到文件
     this->saveTasksToFile(tasks);
 
@@ -239,17 +282,26 @@ void MainWidget::on_addTask_handled(const Task &task)
 
 void MainWidget::on_deleteTask_handled(int taskId)
 {
-        // 根据任务ID删除任务
-        for (int i = 0; i < tasks.size(); ++i) {
-            if (tasks[i].id == taskId) {
-                tasks.removeAt(i);
-                break;
-            }
+    // 根据任务ID删除任务
+    for (int i = 0; i < tasks.size(); ++i) {
+        if (tasks[i].id == taskId) {
+            tasks.removeAt(i);
+            break;
         }
-    
-        // 更新任务列表
-        updateTaskListWidget(tasks);
-    
-        // 保存任务到文件
+    }
+
+    // 更新任务列表
+    updateTaskListWidget(tasks);
+
+    // 保存任务到文件
+    saveTasksToFile(tasks);
+}
+
+void MainWidget::keyPressEvent(QKeyEvent *event)
+{
+    // if ctrl + s is save 
+    if (event->key() == Qt::Key_S && (event->modifiers() & Qt::ControlModifier))
+    {
         saveTasksToFile(tasks);
+    }
 }

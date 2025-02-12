@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>tasks.txt</file>
+        <file>res/plan.png</file>
+        <file>res/TaskReminder.ico</file>
     </qresource>
 </RCC>

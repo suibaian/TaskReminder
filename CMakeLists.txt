@@ -18,6 +18,7 @@ set(PROJECT_SOURCES
         mainwidget.h
         common.h
         mainwidget.ui
+        logo.rc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -41,6 +42,7 @@ else()
             ${PROJECT_SOURCES}
             taskwidget.h taskwidget.cpp taskwidget.ui
             adddialog.h adddialog.cpp adddialog.ui
+            res.qrc
         )
     endif()
 endif()

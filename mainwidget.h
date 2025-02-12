@@ -31,6 +31,8 @@ public:
 
     bool loadTasksFromFile();
 
+    void updateTaskItem(const Task &task);
+
     // update task list widget 
     void updateTaskListWidget(const QList<Task> &tasks);
 
@@ -47,6 +49,9 @@ private slots:
 
     // using id to delete task from list
     void on_deleteTask_handled(int taskId);
+
+    // check key press event
+    void keyPressEvent(QKeyEvent *event);
 
 private:
     Ui::MainWidget *ui;
