@@ -31,12 +31,22 @@ public:
 
     bool loadTasksFromFile();
 
-private slots:
-    void createNewTask();
+    // update task list widget 
+    void updateTaskListWidget(const QList<Task> &tasks);
 
+    // add single task to list
     void addTask(const Task &task);
 
-    // void on_addTask_pushButton_clicked();
+
+private slots:
+    // open add task dialog
+    void on_createNewTask_Dialog();
+
+    // on AddDialog taskAdded signal, need to add task to list
+    void on_addTask_handled(const Task &task);
+
+    // using id to delete task from list
+    void on_deleteTask_handled(int taskId);
 
 private:
     Ui::MainWidget *ui;

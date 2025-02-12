@@ -16,8 +16,6 @@ set(PROJECT_SOURCES
         main.cpp
         mainwidget.cpp
         mainwidget.h
-        tasklistitem.cpp
-        tasklistitem.h
         common.h
         mainwidget.ui
 )
@@ -41,7 +39,6 @@ else()
     else()
         add_executable(TaskReminder
             ${PROJECT_SOURCES}
-            tasklistitem.h tasklistitem.cpp
             taskwidget.h taskwidget.cpp taskwidget.ui
             adddialog.h adddialog.cpp adddialog.ui
         )

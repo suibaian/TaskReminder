@@ -12,6 +12,8 @@
 #include <QCheckBox>
 #include <QPushButton>
 
+// 初始化静态变量
+int Task::nextId = 1;
 
 AddDialog::AddDialog(QWidget *parent)
     : QDialog(parent)
